@@ -13,6 +13,30 @@ router.get("/", async (_, res) => {
   }
 });
 
+router.get("/:id", async (req, res) => {
+  try {
+    let data = await getGrades();
+
+    const grade = data.grades.find(
+      (grade) => grade.id === parseInt(req.params.id, 10)
+    );
+    console.log(grade);
+
+    if (grade) {
+      res.send(grade);
+    } else {
+      throw new Error("User not found.");
+    }
+    res.end();
+    // logger.info(`PUT accounts/${JSON.stringify(newAccount.id)}`);
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+    // logger.error(
+    //   `PUT accounts/${JSON.stringify(newAccount.id)} - ${err.message}`
+    // );
+  }
+});
+
 router.post("/", async (req, res) => {
   let grade = req.body;
   try {
