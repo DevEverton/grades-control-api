@@ -20,7 +20,6 @@ router.get("/:id", async (req, res) => {
     const grade = data.grades.find(
       (grade) => grade.id === parseInt(req.params.id, 10)
     );
-    console.log(grade);
 
     if (grade) {
       res.send(grade);
@@ -88,15 +87,10 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   try {
     let data = await getGrades();
-    console.log(data);
-    console.log(req.params.id);
-
     const grades = data.grades.filter(
       (grade) => grade.id !== parseInt(req.params.id, 10)
     );
-
     data.grades = grades;
-
     await fs.writeFile(fileName, JSON.stringify(data));
 
     res.end();
@@ -106,6 +100,28 @@ router.delete("/:id", async (req, res) => {
     // logger.error(
     //   `PUT accounts/${JSON.stringify(newAccount.id)} - ${err.message}`
     // );
+  }
+});
+
+router.get("/:student/:subject", async (req, res) => {
+  try {
+    let data = await getGrades();
+    let sumOfGrades = data.grades
+      .filter((grade) => grade.student === req.params.student)
+      .filter((student) => student.subject === req.params.subject)
+      .reduce((acc, curr) => {
+        return acc + curr.value;
+      }, 0);
+
+    let result = {
+      student: req.params.student,
+      subject: req.params.subject,
+      sumOfGrades,
+    };
+    res.send(result);
+    res.end();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
   }
 });
 
