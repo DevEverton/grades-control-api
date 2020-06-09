@@ -27,12 +27,8 @@ router.get("/:id", async (req, res) => {
       throw new Error("User not found.");
     }
     res.end();
-    // logger.info(`PUT accounts/${JSON.stringify(newAccount.id)}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
-    // logger.error(
-    //   `PUT accounts/${JSON.stringify(newAccount.id)} - ${err.message}`
-    // );
   }
 });
 
@@ -45,10 +41,8 @@ router.post("/", async (req, res) => {
 
     await fs.writeFile(fileName, JSON.stringify(data));
     res.end();
-    //   logger.info(`POST /account - ${JSON.stringify(account)}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
-    //   logger.error(`POST /account - ${err.message}`);
   }
 });
 
@@ -75,12 +69,8 @@ router.put("/:id", async (req, res) => {
       throw new Error("User not found.");
     }
     res.end();
-    // logger.info(`PUT accounts/${JSON.stringify(newAccount.id)}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
-    // logger.error(
-    //   `PUT accounts/${JSON.stringify(newAccount.id)} - ${err.message}`
-    // );
   }
 });
 
@@ -94,16 +84,12 @@ router.delete("/:id", async (req, res) => {
     await fs.writeFile(fileName, JSON.stringify(data));
 
     res.end();
-    // logger.info(`PUT accounts/${JSON.stringify(newAccount.id)}`);
   } catch (err) {
     res.status(400).send({ error: err.message });
-    // logger.error(
-    //   `PUT accounts/${JSON.stringify(newAccount.id)} - ${err.message}`
-    // );
   }
 });
 
-router.get("/:student/:subject", async (req, res) => {
+router.get("/sum/:student/:subject", async (req, res) => {
   try {
     let data = await getGrades();
     let sumOfGrades = data.grades
@@ -119,6 +105,47 @@ router.get("/:student/:subject", async (req, res) => {
       sumOfGrades,
     };
     res.send(result);
+    res.end();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
+
+router.get("/average/:subject/:type", async (req, res) => {
+  try {
+    let data = await getGrades();
+    let grades = data.grades
+      .filter((grade) => grade.subject === req.params.subject)
+      .filter((grade) => grade.type === req.params.type);
+    let total = grades.length;
+    let average =
+      grades.reduce((acc, curr) => {
+        return acc + curr.value;
+      }, 0) / total;
+
+    let result = {
+      subject: req.params.subject,
+      type: req.params.type,
+      average,
+    };
+    res.send(result);
+    res.end();
+  } catch (err) {
+    res.status(400).send({ error: err.message });
+  }
+});
+
+router.get("/top3/:subject/:type", async (req, res) => {
+  try {
+    let data = await getGrades();
+    let top3 = data.grades
+      .filter((grade) => grade.subject === req.params.subject)
+      .filter((grade) => grade.type === req.params.type)
+      .sort((a, b) => {
+        return b.value - a.value;
+      })
+      .slice(0, 3);
+    res.send(top3);
     res.end();
   } catch (err) {
     res.status(400).send({ error: err.message });
